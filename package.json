@@ -1,0 +1,22 @@
+{
+  "name": "backend",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "dev": "nodemon ./bin/www"
+  },
+  "engines": {
+    "node": "6.2.1"
+  },
+  "dependencies": {
+    "body-parser": "~1.12.4",
+    "debug": "~2.2.0",
+    "express": "~4.12.4",
+    "morgan": "~1.5.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wwwfreedom/voting-app-backend.git"
+  }
+}
