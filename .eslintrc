@@ -1,0 +1,19 @@
+{
+  "parser"  : "babel-eslint",
+  "env"     : {
+    "browser" : true
+  },
+  "globals" : {
+    "__DEV__"      : false,
+    "__PROD__"     : false,
+    "__DEBUG__"    : false,
+    "__DEBUG_NEW_WINDOW__" : false,
+  },
+  "rules": {
+    "semi" : [2, "never"],
+    "eol-last": 0,
+    "quotes": 0,
+    "space-before-function-paren": [0, "never"],
+    "space-in-parens": 0
+  }
+}
