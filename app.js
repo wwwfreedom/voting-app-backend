@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('path')
 const logger = require('morgan')
 const bodyParser = require('body-parser')
+const cors = require('cors')
 
 const routes = require('./routes/index')
 const users = require('./routes/users')
@@ -9,6 +10,8 @@ const users = require('./routes/users')
 const app = express()
 
 app.use(logger('dev'))
+// allow cross origin domain
+app.use(cors({ exposedHeaders: ['access-token', 'expiry', 'uid'] }))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
