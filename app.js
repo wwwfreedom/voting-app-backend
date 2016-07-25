@@ -4,11 +4,23 @@ const logger = require('morgan')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const expressValidator = require('express-validator')
+const mongoose = require('mongoose')
 
 const routes = require('./routes/index')
 const users = require('./routes/users')
 
 const app = express()
+
+// Db Setup
+if (process.env.NODE_ENV === 'development') {
+  mongoose.connect('mongodb://127.0.0.1:voting/voting')
+  console.log('connecting to local development mongo')
+} else {
+  // this is link to the mongolab addon from heroku
+  mongoose.connect(process.env.MONGODB_URI)
+}
+// allow the promise use of mongoose
+mongoose.Promise = global.Promise
 
 app.use(logger('dev'))
 // allow cross origin domain
