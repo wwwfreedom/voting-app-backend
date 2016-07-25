@@ -19,6 +19,12 @@ if (process.env.NODE_ENV === 'development') {
   // this is link to the mongolab addon from heroku
   mongoose.connect(process.env.MONGODB_URI)
 }
+
+mongoose.connection.on('error', function() {
+  console.log('MongoDB Connection Error. Please make sure that MongoDB is running.')
+  process.exit(1)
+})
+
 // allow the promise use of mongoose
 mongoose.Promise = global.Promise
 
