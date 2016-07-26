@@ -30,7 +30,7 @@ mongoose.connection.on('error', function() {
 })
 
 // allow the promise use of mongoose
-mongoose.Promise = global.Promise
+mongoose.Promise = require('bluebird')
 
 // Models
 var User = require('./models/user')
