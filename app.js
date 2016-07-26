@@ -8,6 +8,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const expressValidator = require('express-validator')
 const mongoose = require('mongoose')
+const jwt = require('jsonwebtoken')
 
 const routes = require('./routes/index')
 const users = require('./routes/users')
@@ -31,12 +32,36 @@ mongoose.connection.on('error', function() {
 // allow the promise use of mongoose
 mongoose.Promise = global.Promise
 
+// Models
+var User = require('./models/user')
+
 app.use(logger('dev'))
 // allow cross origin domain
-app.use(cors({ exposedHeaders: ['access-token', 'expiry', 'uid'] }))
+app.use(
+  cors({ exposedHeaders: ['access-token', 'expiry', 'uid', 'authorization'] }))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(expressValidator())
+
+// jwt authentication strategy
+app.use((req, res, next) => {
+  req.isAuthenticated = function() {
+    let token = (req.headers.authorization && req.headers.authorization.split(' ')[1]) || req.body.token
+    try {
+      return jwt.verify(token, process.env.TOKEN_SECRET)
+    } catch(err) {
+      return false
+    }
+  }
+
+  if (req.isAuthenticated()) {
+    let payload = req.isAuthenticated()
+    User.findById(payload.sub, (err, user) => {
+      req.user = user
+      next()
+    })
+  } else { next() }
+})
 
 app.use('/', routes)
 app.use('/users', users)
