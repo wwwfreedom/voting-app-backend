@@ -5,8 +5,6 @@ const nodemailer = require('nodemailer')
 const axios = require('axios')
 const qs = require('querystring')
 const User = require('../models/user')
-// const async = require('asyncawait/async')
-// const await = require('asyncawait/await')
 const generateJwtToken = require('../utils/generateJwtToken')
 const _ = require('lodash')
 
@@ -23,28 +21,27 @@ exports.signupPost = function(req, res, next) {
 
   var errors = req.validationErrors()
 
-  if (errors) {
-    return res.status(400).send(errors)
-  }
+  if (errors) return res.status(400).send(errors)
 
-  User.findOne({ email: req.body.email })
-  .then((user) => {
+  Promise.coroutine(function* () {
+    const user = yield User.findOne({ email: req.body.email }).exec()
     if (user) {
-      return res.status(400).send({ msg: 'The email address you have entered is already associated with another account.' })
+      if (user.google || user.github) {
+        return res.status(409).send({errors: ['Email is in use, please log in']})
+      }
+      return res.status(409).send({ msg: 'The email address you have entered is already associated with another account.' })
     }
-    user = new User({
+    const newUser = yield new User({
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
       password: req.body.password
-    })
-    return user.save()
-  })
-  .then((user) => {
-    const modUser = _.omit(user.toObject(), ['password', 'google'])
-    return res.send({ token: generateJwtToken(user), user: modUser })
-  })
+    }).save()
+    let modUser = _.omit(newUser.toObject(), ['password', 'google', 'github'])
+    res.send({ token: generateJwtToken(newUser), user: modUser })
+  })()
   .catch((err) => {
+    console.log(err)
     return res.status(500).send({ message: "We're experiencing technical difficulties at the moment. Please wait and try again later. Thank you." })
   })
 }
