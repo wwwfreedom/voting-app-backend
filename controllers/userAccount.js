@@ -27,7 +27,7 @@ exports.signupPost = function(req, res, next) {
     if (user) {
       if (user.google || user.github) return res.status(409).send({message: ['Email is in use, please log in']})
 
-      return errorResponse(res, req, 'signupError')
+      return errorResponse(req, res, 'signupError')
     }
     const newUser = yield new User({
       firstName: req.body.firstName,
@@ -40,7 +40,7 @@ exports.signupPost = function(req, res, next) {
   })()
   .catch((err) => {
     console.log(err)
-    return errorResponse(res, req, 'standardError')
+    return errorResponse(req, res, 'standardError')
   })
 }
 
@@ -50,7 +50,19 @@ exports.signupPost = function(req, res, next) {
 exports.accountDelete = function(req, res, next) {
 
   User.remove({ _id: req.user.id }, function(err) {
-    if (err) return errorResponse(res, req, 'standardError')
+    if (err) return errorResponse(req, res, 'standardError')
     return res.send({ message: 'Your account has been permanently deleted.' })
+  })
+}
+
+/**
+ * GET /current user
+ */
+exports.accountGet = function(req, res, next) {
+  User.findById({ _id: req.user.id }, function(err, user) {
+    if (err) return errorResponse(req, res, 'standardError')
+
+    let modUser = _.omit(user.toObject(), ['password', 'google', 'github'])
+    return res.send({ user: modUser })
   })
 }

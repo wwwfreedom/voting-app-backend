@@ -13,5 +13,6 @@ router.post('/signup', userAccountController.signupPost)
 router.post('/forgot_password', userAuthController.forgotPasswordPost)
 router.post('/reset_password/:token', userAuthController.resetPasswordPost)
 router.delete('/user_account/', userAuthController.ensureAuthenticated, userAccountController.accountDelete)
+router.get('/user_account/', userAuthController.ensureAuthenticated, userAccountController.accountGet)
 
 module.exports = router

@@ -1,4 +1,4 @@
-const errorResponse = function(res, req, errorType) {
+const errorResponse = function(req, res, errorType) {
   if (errorType === 'loginPostError') {
     return res.status(400).send({message: "Invalid email or password. If you previously logged in with Google, click 'Log in with Google' to access your account."})
   }

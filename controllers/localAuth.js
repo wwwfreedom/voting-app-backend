@@ -38,14 +38,14 @@ exports.loginPost = function(req, res, next) {
   Promise.coroutine(function* () {
     // step 1: find if user exist by that email
     const user = yield User.findOne({ email: req.body.email })
-    if (!user) return errorResponse(res, req, 'loginPostError')
+    if (!user) return errorResponse(req, res, 'loginPostError')
 
     // step 2: check whether if user has password store in db. For Oauth user.
-    if (!user.password) return errorResponse(res, req, 'loginPostError')
+    if (!user.password) return errorResponse(req, res, 'loginPostError')
 
     // step 3: if password is in db then check if password match
     const passwordIsMatch = yield user.comparePassword(req.body.password)
-    if (!passwordIsMatch) return errorResponse(res, req, 'loginPostError')
+    if (!passwordIsMatch) return errorResponse(req, res, 'loginPostError')
 
     // step 4: check if user check remember me option and return the appropriate token with user detail
     const modUser = _.omit(user.toObject(), ['password', 'google', 'github'])
@@ -55,7 +55,7 @@ exports.loginPost = function(req, res, next) {
   })()
   .catch((err) => {
     console.log(err)
-    return errorResponse(res, req, 'standardError')
+    return errorResponse(req, res, 'standardError')
   })
 }
 
@@ -74,7 +74,7 @@ exports.forgotPasswordPost = function (req, res, next) {
   Promise.coroutine(function* () {
     // step 1: find user if no user return with error message
     let user = yield User.findOne({ email: req.body.email }).exec()
-    if (!user) return errorResponse(res, req, 'forgotPasswordPostError')
+    if (!user) return errorResponse(req, res, 'forgotPasswordPostError')
 
     // step 2: if user then generate reset token
     const token = yield randomBytes(16).then(buf => buf.toString('hex'))
@@ -103,17 +103,16 @@ exports.forgotPasswordPost = function (req, res, next) {
 
     // step 5: send mail using the mailer
     transporter.sendMail(mailOptions, function (err) {
-      if (err) return errorResponse(res, req, 'standardError')
+      if (err) return errorResponse(req, res, 'standardError')
 
       res.send({ message: `A link to reset your password has been sent to ${updatedUser.email}`})
     })
   })()
   .catch((err) => {
     console.log(err)
-    return errorResponse(res, req, 'standardError')
+    return errorResponse(req, res, 'standardError')
   })
 }
-
 
 /**
  * POST /reset
@@ -153,12 +152,12 @@ exports.resetPasswordPost = function(req, res, next) {
       This is a confirmation that the password for your account ${updatedUser.email} has just been changed.\n`
     }
     transporter.sendMail(mailOptions, (err) => {
-      if (err) return errorResponse(res, req, 'standardError')
+      if (err) return errorResponse(req, res, 'standardError')
       res.send({ message: 'Your password has been changed successfully.' })
     })
   })()
   .catch((err) => {
     console.log(err)
-    return errorResponse(res, req, 'standardError')
+    return errorResponse(req, res, 'standardError')
   })
 }
