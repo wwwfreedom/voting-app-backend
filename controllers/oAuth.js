@@ -79,7 +79,76 @@ exports.authGoogle = function(req, res) {
       user: _.omit(newUser.toObject(), ['password', 'google'])
     })
 
-  })() // self invoke Promise coroutien and end
+  })() // self invoke Promise coroutine and end
+  .catch((err) => {
+    console.log(err)
+    return errorResponse(req, res, 'standardError')
+  })
+}
+
+/**
+ * POST /auth/github
+ * Sign in with Github
+ */
+exports.authGithub = function(req, res) {
+  let accessTokenUrl = 'https://github.com/login/oauth/access_token'
+  let userUrl = 'https://api.github.com/user'
+  let params = {
+    code: req.body.code,
+    client_id: req.body.client_id,
+    client_secret: process.env.GITHUB_SECRET,
+    redirect_uri: req.body.redirect_uri,
+    grant_type: 'authorization_code'
+  }
+
+  Promise.coroutine(function* () {
+    // Step 1. Exchange authorization code for access token.
+    const access_token = yield axios.post(accessTokenUrl, qs.stringify(params)).then((response) => qs.parse(response.data).access_token)
+
+    // Step 2. Retrieve user's profile information.
+    const profile = yield axios.get(userUrl, {headers:{ Authorization: `Bearer ${access_token}`} }).then(({data}) => data)
+
+    if (!profile.email) return errorResponse(req, res, 'oAuthGithub')
+
+    // Step 3b. Create a new user account or return an existing one.
+    const user = yield User.findOne({email: profile.email}).exec()
+
+    if (user) {
+      if (user.google) {
+        return res.send({
+          token: authentication.generateJwtToken(user, '1 day'),
+          user: _.omit(user.toObject(), ['password', 'google'])
+        })
+      }
+
+      // update user on first login with google
+      user.firstName = user.firstName || profile.name
+      user.gender = user.gender || profile.gender
+      user.location = user.location || profile.location
+      user.picture = user.picture || profile.picture
+      user.github = profile.id
+
+      const updatedUser = yield user.save()
+      return res.send({
+        token: authentication.generateJwtToken(updatedUser, '1 day'),
+        user: _.omit(updatedUser.toObject(), ['password', 'google'])
+      })
+    }
+
+    // if user is not found then create a new user
+    const newUser = yield new User({
+      firstName: profile.name,
+      email: profile.email,
+      picture: profile.picture,
+      location: profile.location,
+      github: profile.id,
+    }).save()
+
+    return res.send({
+      token: authentication.generateJwtToken(newUser, '1 day'),
+      user: _.omit(newUser.toObject(), ['password', 'google'])
+    })
+  })() // self invoke Promise coroutine and end
   .catch((err) => {
     console.log(err)
     return errorResponse(req, res, 'standardError')

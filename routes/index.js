@@ -18,5 +18,7 @@ router.delete('/user_account/', userAuthController.ensureAuthenticated, userAcco
 router.get('/user_account/', userAuthController.ensureAuthenticated, userAccountController.accountGet)
 router.put('/user_account/', userAuthController.ensureAuthenticated, userAccountController.accountPut)
 
-router.post('/oauth/google', userOauthController.google)
+router.post('/oauth/google', userOauthController.authGoogle)
+router.post('/oauth/github', userOauthController.authGithub)
+
 module.exports = router
