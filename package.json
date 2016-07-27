@@ -10,7 +10,6 @@
     "node": "6.2.1"
   },
   "dependencies": {
-    "asyncawait": "^1.0.6",
     "axios": "^0.13.1",
     "bcrypt-nodejs": "0.0.3",
     "bluebird": "^3.4.1",

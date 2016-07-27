@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt-nodejs')
+const Promise = require("bluebird")
 
 // Define user model
 var schemaOptions = {
@@ -50,14 +51,14 @@ userSchema.pre('save', function (next) {
 })
 
 // this method will be avail when ever you use this model
-userSchema.methods.comparePassword = function (candidatePassword, callback) {
+userSchema.methods.comparePassword = Promise.promisify(function (candidatePassword, callback) {
 // this is a reference to user model, this.password is our hash + salt password
   bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
     if (err) { return callback(err) }
 
     callback(null, isMatch)
   })
-}
+})
 
 // Create the model class
 // create a collection name User using the userSchema for each new documents

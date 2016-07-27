@@ -7,11 +7,11 @@ const qs = require('querystring')
 const User = require('../models/user')
 // const async = require('asyncawait/async')
 // const await = require('asyncawait/await')
-const generateToken = require('../utils/generateToken')
+const generateJwtToken = require('../utils/generateJwtToken')
 const _ = require('lodash')
 
 /**
- * POST /signup
+ * POST /signup Create new account with email
  */
 exports.signupPost = function(req, res, next) {
   req.assert('firstName', 'First name cannot be blank').notEmpty()
@@ -42,7 +42,7 @@ exports.signupPost = function(req, res, next) {
   })
   .then((user) => {
     const modUser = _.omit(user.toObject(), ['password', 'google'])
-    return res.send({ token: generateToken(user), user: modUser })
+    return res.send({ token: generateJwtToken(user), user: modUser })
   })
   .catch((err) => {
     return res.status(500).send({ message: "We're experiencing technical difficulties at the moment. Please wait and try again later. Thank you." })
