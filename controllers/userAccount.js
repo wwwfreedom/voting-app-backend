@@ -1,7 +1,5 @@
 // responsible for create, update and delete account details of user
 const Promise = require("bluebird")
-const axios = require('axios')
-const qs = require('querystring')
 const User = require('../models/user')
 const generateJwtToken = require('../utils/generateJwtToken')
 const _ = require('lodash')

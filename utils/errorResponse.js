@@ -15,6 +15,10 @@ const errorResponse = function(req, res, errorType) {
   if (errorType === 'standardError') {
     return res.status(500).send({ message: "We're experiencing technical difficulties at the moment. Please wait and try again later. Thank you." })
   }
+
+  if (errorType === 'oAuthGoogle') {
+    return res.status(500).send({ message: "Sorry we could not find your email from Google, please add or make your email available from your Google account. Otherwise you can sign up via our other options. " })
+  }
 }
 
 module.exports = errorResponse
