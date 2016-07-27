@@ -1,7 +1,5 @@
 // responsible for create, update and delete account details of user
 const Promise = require("bluebird")
-const crypto = Promise.promisifyAll(require('crypto'))
-const nodemailer = require('nodemailer')
 const axios = require('axios')
 const qs = require('querystring')
 const User = require('../models/user')
@@ -29,7 +27,7 @@ exports.signupPost = function(req, res, next) {
       if (user.google || user.github) {
         return res.status(409).send({errors: ['Email is in use, please log in']})
       }
-      return res.status(409).send({ msg: 'The email address you have entered is already associated with another account.' })
+      return res.status(409).send({ message: 'The email address you have entered is already associated with another account.' })
     }
     const newUser = yield new User({
       firstName: req.body.firstName,
