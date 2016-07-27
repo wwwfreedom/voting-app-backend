@@ -5,6 +5,7 @@ const qs = require('querystring')
 const User = require('../models/user')
 const generateJwtToken = require('../utils/generateJwtToken')
 const _ = require('lodash')
+const errorResponse = require('../utils/errorResponse')
 
 /**
  * POST /signup Create new account with email
@@ -24,10 +25,9 @@ exports.signupPost = function(req, res, next) {
   Promise.coroutine(function* () {
     const user = yield User.findOne({ email: req.body.email }).exec()
     if (user) {
-      if (user.google || user.github) {
-        return res.status(409).send({errors: ['Email is in use, please log in']})
-      }
-      return res.status(409).send({ message: 'The email address you have entered is already associated with another account.' })
+      if (user.google || user.github) return res.status(409).send({message: ['Email is in use, please log in']})
+
+      return errorResponse(res, req, 'signupError')
     }
     const newUser = yield new User({
       firstName: req.body.firstName,
@@ -40,6 +40,17 @@ exports.signupPost = function(req, res, next) {
   })()
   .catch((err) => {
     console.log(err)
-    return res.status(500).send({ message: "We're experiencing technical difficulties at the moment. Please wait and try again later. Thank you." })
+    return errorResponse(res, req, 'standardError')
+  })
+}
+
+/**
+ * DELETE /account
+ */
+exports.accountDelete = function(req, res, next) {
+
+  User.remove({ _id: req.user.id }, function(err) {
+    if (err) return errorResponse(res, req, 'standardError')
+    return res.send({ message: 'Your account has been permanently deleted.' })
   })
 }

@@ -46,7 +46,7 @@ app.use(expressValidator())
 // jwt authentication strategy
 app.use((req, res, next) => {
   req.isAuthenticated = function() {
-    let token = (req.headers.authorization && req.headers.authorization.split(' ')[1]) || req.body.token
+    let token = req.headers.authorization || req.body.token
     try {
       return jwt.verify(token, process.env.TOKEN_SECRET)
     } catch(err) {
@@ -60,7 +60,9 @@ app.use((req, res, next) => {
       req.user = user
       next()
     })
-  } else { next() }
+  } else {
+    next()
+  }
 })
 
 app.use('/', routes)

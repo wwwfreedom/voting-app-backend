@@ -9,6 +9,17 @@ const appUrl = process.env.APPURL
 const errorResponse = require('../utils/errorResponse')
 
 /**
+ * Login required middleware
+ */
+exports.ensureAuthenticated = function(req, res, next) {
+  if (req.isAuthenticated()) {
+    next()
+  } else {
+    res.status(401).send({ message: 'Unauthorized' })
+  }
+}
+
+/**
  * POST /login
  * Sign in with email and password
  */
