@@ -8,7 +8,7 @@ const errorResponse = function(req, res, errorType) {
       })
   }
 
-  if (errorType === 'signupError') {
+  if (errorType === 'signupError' || errorType === 'accountPutError') {
     return res.status(409).send({ message: 'The email address you have entered is already associated with another account.' })
   }
 

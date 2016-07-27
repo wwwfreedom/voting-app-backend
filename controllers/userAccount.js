@@ -56,7 +56,7 @@ exports.accountDelete = function(req, res, next) {
 }
 
 /**
- * GET /current user
+ * GET /user_account  get current user account detail
  */
 exports.accountGet = function(req, res, next) {
   User.findById({ _id: req.user.id }, function(err, user) {
@@ -64,5 +64,54 @@ exports.accountGet = function(req, res, next) {
 
     let modUser = _.omit(user.toObject(), ['password', 'google', 'github'])
     return res.send({ user: modUser })
+  })
+}
+
+/**
+ * POST /user_account change user account detail
+ */
+exports.accountPut = function (req, res, next) {
+  Promise.coroutine(function* () {
+    // step 1: validate input
+    if ('password' in req.body) {
+      req.assert('password', 'Password must be at least 6 characters').len(6)
+    } else {
+      req.assert('email', 'Email is not valid').isEmail()
+      req.assert('email', 'Email cannot be blank').notEmpty()
+      req.sanitize('email').normalizeEmail({ remove_dots: false })
+    }
+
+    var errors = req.validationErrors()
+    if (errors) return res.status(400).send(errors)
+
+    // step 2: find and update user detail
+    const user = yield User.findById(req.user.id).exec()
+
+    if ('password' in req.body) {
+      user.password = req.body.password
+    } else {
+      user.email = req.body.email
+      user.firstName = req.body.firstName
+      user.lastName = req.body.lastName
+      user.gender = req.body.gender
+      user.location = req.body.location
+      user.website = req.body.website
+      user.picture = req.body.picture
+    }
+
+    // step 3: save the updates to db and return the result as object
+    const updatedUser = yield user.save()
+
+    // step 4: send the response of the updates back to user
+    if ('password' in req.body) return res.send({message: 'Your password has been changed.'})
+
+    return res.send({
+      user: _.omit(updatedUser.toObject(), ['password', 'google', 'github']),
+      message: 'Your profile information has been updated.'
+    })
+  })()
+  .catch((err) => {
+    if (err.code === 11000) return errorResponse(req, res, 'accountPutError')
+    return errorResponse(req, res, 'standardError')
   })
 }
