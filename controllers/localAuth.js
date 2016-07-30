@@ -98,7 +98,7 @@ exports.forgotPasswordPost = function (req, res, next) {
       subject: `✔ Instruction to reset your password from ${appUrl}`,
       text: `You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n\n
       Please click on the following link, or paste this into your browser to complete the process:\n\n
-      ${process.env.APPURL}reset/${token}\n\n If you did not request this, please ignore this email and your password will remain unchanged.\n`
+      ${appUrl}/reset_password/${token}\n\n If you did not request this, please ignore this email and your password will remain unchanged.\n`
     }
 
     // step 5: send mail using the mailer

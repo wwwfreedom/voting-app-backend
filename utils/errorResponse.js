@@ -4,7 +4,7 @@ const errorResponse = function(req, res, errorType) {
   }
 
   if (errorType === 'forgotPasswordPostError') {
-    return res.status(400).send({ message: `No account exists for ${req.body.email}. Maybe you signed up using a different/incorrect e-mail address`
+    return res.status(400).send({ message: `No account exists for ${req.body.email}. Maybe you signed up using a different/incorrect e-mail address.`
       })
   }
 
