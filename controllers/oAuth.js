@@ -42,7 +42,7 @@ exports.authGoogle = function(req, res) {
       // if user aleady has google profile just return the token and user without updating the user.
       if (user.google) {
         return res.send({
-          token: authentication.generateJwtToken(user, '1 day'),
+          token: generateJwtToken(user, '1 day'),
           user: _.omit(user.toObject(), ['password', 'google'])
         })
       }
@@ -57,7 +57,7 @@ exports.authGoogle = function(req, res) {
 
       const updatedUser = yield user.save()
       return res.send({
-        token: authentication.generateJwtToken(updatedUser, '1 day'),
+        token: generateJwtToken(updatedUser, '1 day'),
         // lesson: object return from  mongoose is mod object and need to be convert to normal object using toObject() to use method on it.
         user: _.omit(updatedUser.toObject(), ['password', 'google'])
       })
@@ -75,7 +75,7 @@ exports.authGoogle = function(req, res) {
     }).save()
 
     return res.send({
-      token: authentication.generateJwtToken(newUser, '1 day'),
+      token: generateJwtToken(newUser, '1 day'),
       user: _.omit(newUser.toObject(), ['password', 'google'])
     })
 
@@ -116,7 +116,7 @@ exports.authGithub = function(req, res) {
     if (user) {
       if (user.google) {
         return res.send({
-          token: authentication.generateJwtToken(user, '1 day'),
+          token: generateJwtToken(user, '1 day'),
           user: _.omit(user.toObject(), ['password', 'google'])
         })
       }
@@ -130,7 +130,7 @@ exports.authGithub = function(req, res) {
 
       const updatedUser = yield user.save()
       return res.send({
-        token: authentication.generateJwtToken(updatedUser, '1 day'),
+        token: generateJwtToken(updatedUser, '1 day'),
         user: _.omit(updatedUser.toObject(), ['password', 'google'])
       })
     }
@@ -145,7 +145,7 @@ exports.authGithub = function(req, res) {
     }).save()
 
     return res.send({
-      token: authentication.generateJwtToken(newUser, '1 day'),
+      token: generateJwtToken(newUser, '1 day'),
       user: _.omit(newUser.toObject(), ['password', 'google'])
     })
   })() // self invoke Promise coroutine and end

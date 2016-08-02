@@ -11,7 +11,7 @@ const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
 
 const routes = require('./routes/index')
-const users = require('./routes/users')
+const user = require('./routes/user')
 
 const app = express()
 
@@ -66,7 +66,7 @@ app.use((req, res, next) => {
 })
 
 app.use('/', routes)
-app.use('/users', users)
+app.use('/user', user)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
