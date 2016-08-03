@@ -1,6 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const userAccountController = require('../controllers/userAccount')
 const userAuthController = require('../controllers/localAuth')
 const userOauthController = require('../controllers/oAuth')
 

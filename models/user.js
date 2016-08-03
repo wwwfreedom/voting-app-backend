@@ -5,9 +5,9 @@ const Promise = require("bluebird")
 // Define user model
 var schemaOptions = {
   timestamps: true,
-  toJSON: {
-    virtuals: true
-  }
+  // toJSON: {
+  //   virtuals: true
+  // }
 }
 
 var userSchema = new mongoose.Schema({
@@ -24,6 +24,11 @@ var userSchema = new mongoose.Schema({
   google: String,
   github: String,
 }, schemaOptions)
+
+// // virtual full name
+// userSchema.virtual('fullName').get(function() {
+//   return `${this.firstName} ${this.lastName}`
+// })
 
 /**
  * Password hash middleware (encrypt password)

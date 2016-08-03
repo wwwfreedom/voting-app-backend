@@ -12,12 +12,14 @@ const jwt = require('jsonwebtoken')
 
 const routes = require('./routes/index')
 const user = require('./routes/user')
+const poll = require('./routes/poll')
 
 const app = express()
 
 // Db Setup
 if (process.env.NODE_ENV === 'development') {
   mongoose.connect('mongodb://127.0.0.1:voting/voting')
+  mongoose.set('debug', true)
   console.log('connecting to local development mongo')
 } else {
   // this is link to the mongolab addon from heroku
@@ -67,6 +69,7 @@ app.use((req, res, next) => {
 
 app.use('/', routes)
 app.use('/user', user)
+app.use('/poll', poll)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
