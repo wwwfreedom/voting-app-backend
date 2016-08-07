@@ -12,11 +12,12 @@ var schemaOptions = {
 }
 
 var pollSchema = new mongoose.Schema({
-  title: {type: String, maxlength: 1000},
+  question: {type: String, maxlength: 1000},
   options: [{
     name: {type: String, maxlength: 1000},
     votes: {type: Number, default: 0}
   }],
+  voters: [mongoose.Schema.Types.ObjectId],
   createdBy: {
     type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true
   },

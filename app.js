@@ -15,6 +15,7 @@ const user = require('./routes/user')
 const poll = require('./routes/poll')
 
 const app = express()
+const requestIp = require('request-ip')
 
 // Db Setup
 if (process.env.NODE_ENV === 'development') {
@@ -43,6 +44,8 @@ app.use(
   cors({ exposedHeaders: ['access-token', 'expiry', 'uid', 'authorization'] }))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
+// detect ip
+app.use(requestIp.mw())
 app.use(expressValidator())
 
 // jwt authentication strategy
