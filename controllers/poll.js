@@ -36,13 +36,9 @@ exports.createPoll = function(req, res, next) {
  * return a poll given it's id
  */
 exports.readPoll = function(req, res, next) {
-  const ip = req.clientIp
-  console.log('before ip')
-  console.log(ip)
   Poll.findById(req.params.id).lean()
   .populate('createdBy', 'firstName lastName').exec()
   .then((poll) => {
-    // sleep(1000)
     if (!poll) return res.status(400).send({message: 'Poll Not Found'})
     return res.send({poll})
   })
@@ -52,15 +48,8 @@ exports.readPoll = function(req, res, next) {
   })
 }
 
-function sleep(miliseconds) {
-   var currentTime = new Date().getTime()
-
-   while (currentTime + miliseconds >= new Date().getTime()) {
-   }
-}
-
 /**
- * updatePoll
+ * updatePoll (secure route only logged in user can update via this route)
  * return an updated poll given it's id
  */
 exports.updatePoll = function(req, res, next) {
@@ -69,7 +58,25 @@ exports.updatePoll = function(req, res, next) {
     $push: {voters: req.body.voterId}
   }, {new: true})
   .then((poll) => {
-    // sleep(1000)
+    if (!poll) return res.status(400).send('Poll Not Found')
+    return res.send({poll, message: 'Your vote was submmited'})
+  })
+  .catch((err) => {
+    console.log(err)
+    return errorResponse(req, res, 'standardError')
+  })
+}
+
+/**
+ * public vote route
+ * return an voted poll given it's id
+ */
+exports.publicVote = function(req, res, next) {
+  Poll.findByIdAndUpdate(req.params.id, {
+    $set: req.body,
+    $push: {publicVoters: req.clientIp}
+  }, {new: true})
+  .then((poll) => {
     if (!poll) return res.status(400).send('Poll Not Found')
     return res.send({poll, message: 'Your vote was submmited'})
   })

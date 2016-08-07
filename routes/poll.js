@@ -4,8 +4,9 @@ const poll = require('../controllers/poll')
 const requireAuth = require('../controllers/localAuth').ensureAuthenticated
 
 router.get('/:id', poll.readPoll)
-router.post('/', poll.createPoll)
-router.put('/:id', poll.updatePoll)
+router.post('/', requireAuth, poll.createPoll)
+router.put('/:id', requireAuth, poll.updatePoll)
+router.put('/publicVote/:id', poll.publicVote)
 router.delete('/:id', requireAuth, poll.deletePoll)
 
 module.exports = router
