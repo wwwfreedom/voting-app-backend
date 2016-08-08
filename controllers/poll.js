@@ -40,6 +40,9 @@ exports.readPoll = function(req, res, next) {
   .populate('createdBy', 'firstName lastName').exec()
   .then((poll) => {
     if (!poll) return res.status(400).send({message: 'Poll Not Found'})
+    if (poll.voters.some((voterip) => voterip === req.clientIp)) {
+      return res.send(Object.assign({}, poll, { hasVoted: true}))
+    }
     return res.send({poll})
   })
   .catch((err) => {
@@ -71,22 +74,34 @@ exports.updatePoll = function(req, res, next) {
  * return an voted poll given it's id
  */
 exports.vote = function(req, res, next) {
-  if (!req.body.options) {
-    return res.status(400)
-  }
-  // lesson: To update nested embedded documents you use the primary _id, then the arrayname._id and so on.
-  // use arrayname.$.fieldname the $ is the placeholder of the index of the array you found.
-  Poll.findOneAndUpdate(
-    {_id: req.params.id, "options._id": req.body.options._id},
-    {
-      $inc: {"options.$.votes": 1},
-      $push: {voters: req.clientIp}
-    },
-  {new: true})
-  .then((poll) => {
-    if (!poll) return res.status(400).send({message: 'Poll Not Found'})
-    return res.send({poll, message: 'Your vote was submmited'})
-  })
+  req.assert('options', 'Options object cannot be blank').notEmpty()
+
+  var errors = req.validationErrors()
+
+  if (errors) return res.status(400).send(errors)
+
+  Promise.coroutine(function* () {
+    const poll = yield Poll.findById(req.params.id).lean().exec()
+    const hasVoted = poll.voters.some((voterip) => voterip === req.clientIp)
+
+    if (hasVoted) {
+      return res.status(403).send({message: 'You have already voted'})
+    }
+
+    // lesson: To update nested embedded documents you use the primary _id, then the arrayname._id and so on.
+    // use arrayname.$.fieldname the $ is the placeholder of the index of the array you found.
+    const updatedPoll = yield Poll.findOneAndUpdate(
+      {_id: req.params.id, "options._id": req.body.options._id},
+      {
+        $inc: {"options.$.votes": 1},
+        $push: {voters: req.clientIp}
+      },
+      {new: true}
+    )
+
+    if (!updatedPoll) return res.status(400).send({message: 'Poll Not Found'})
+    return res.send({updatedPoll, message: 'Your vote was submmited'})
+  })()
   .catch((err) => {
     console.log(err)
     return errorResponse(req, res, 'standardError')
