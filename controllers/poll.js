@@ -55,10 +55,9 @@ exports.readPoll = function(req, res, next) {
 exports.updatePoll = function(req, res, next) {
   Poll.findByIdAndUpdate(req.params.id, {
     $set: req.body,
-    $push: {voters: req.body.voterId}
   }, {new: true})
   .then((poll) => {
-    if (!poll) return res.status(400).send('Poll Not Found')
+    if (!poll) return res.status(400).send({message: 'Poll Not Found'})
     return res.send({poll, message: 'Your vote was submmited'})
   })
   .catch((err) => {
@@ -68,16 +67,24 @@ exports.updatePoll = function(req, res, next) {
 }
 
 /**
- * public vote route
+ * vote route
  * return an voted poll given it's id
  */
-exports.publicVote = function(req, res, next) {
-  Poll.findByIdAndUpdate(req.params.id, {
-    $set: req.body,
-    $push: {publicVoters: req.clientIp}
-  }, {new: true})
+exports.vote = function(req, res, next) {
+  if (!req.body.options) {
+    return res.status(400)
+  }
+  // lesson: To update nested embedded documents you use the primary _id, then the arrayname._id and so on.
+  // use arrayname.$.fieldname the $ is the placeholder of the index of the array you found.
+  Poll.findOneAndUpdate(
+    {_id: req.params.id, "options._id": req.body.options._id},
+    {
+      $inc: {"options.$.votes": 1},
+      $push: {voters: req.clientIp}
+    },
+  {new: true})
   .then((poll) => {
-    if (!poll) return res.status(400).send('Poll Not Found')
+    if (!poll) return res.status(400).send({message: 'Poll Not Found'})
     return res.send({poll, message: 'Your vote was submmited'})
   })
   .catch((err) => {
@@ -93,7 +100,7 @@ exports.publicVote = function(req, res, next) {
 exports.deletePoll = function(req, res, next) {
   Poll.findByIdAndRemove(req.params.id).exec()
   .then((poll) => {
-    if (!poll) return res.status(400).send('Poll Not Found')
+    if (!poll) return res.status(400).send({message: 'Poll Not Found'})
     return res.send({message: 'Poll has been deleted'})
   })
   .catch((err) => {

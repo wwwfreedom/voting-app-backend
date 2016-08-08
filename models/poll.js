@@ -17,8 +17,7 @@ var pollSchema = new mongoose.Schema({
     name: {type: String, maxlength: 1000},
     votes: {type: Number, default: 0}
   }],
-  voters: [mongoose.Schema.Types.ObjectId],
-  publicVoters: [String],
+  voters: [String],
   createdBy: {
     type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true
   },

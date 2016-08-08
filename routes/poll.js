@@ -6,7 +6,7 @@ const requireAuth = require('../controllers/localAuth').ensureAuthenticated
 router.get('/:id', poll.readPoll)
 router.post('/', requireAuth, poll.createPoll)
 router.put('/:id', requireAuth, poll.updatePoll)
-router.put('/publicVote/:id', poll.publicVote)
+router.put('/vote/:id', poll.vote)
 router.delete('/:id', requireAuth, poll.deletePoll)
 
 module.exports = router
