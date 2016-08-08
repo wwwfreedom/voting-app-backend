@@ -41,9 +41,11 @@ exports.readPoll = function(req, res, next) {
   .then((poll) => {
     if (!poll) return res.status(400).send({message: 'Poll Not Found'})
     if (poll.voters.some((voterip) => voterip === req.clientIp)) {
-      return res.send(Object.assign({}, poll, { hasVoted: true}))
+      let hasVoted = Object.assign({}, poll, { hasVoted: true})
+      return res.send({poll: hasVoted})
     }
-    return res.send({poll})
+    let hasNotVoted = Object.assign({}, poll, { hasVoted: false })
+    return res.send({poll: hasNotVoted})
   })
   .catch((err) => {
     console.log(err)
@@ -97,10 +99,12 @@ exports.vote = function(req, res, next) {
         $push: {voters: req.clientIp}
       },
       {new: true}
-    )
-
+    ).lean().exec()
     if (!updatedPoll) return res.status(400).send({message: 'Poll Not Found'})
-    return res.send({updatedPoll, message: 'Your vote was submmited'})
+    return res.send({
+      poll: Object.assign({}, updatedPoll, { hasVoted: true}),
+      message: 'Your vote was submmited'
+    })
   })()
   .catch((err) => {
     console.log(err)
