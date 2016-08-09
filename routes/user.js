@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const userProfile = require('../controllers/user/profile')
+const userPolls = require('../controllers/user/polls.js')
 const userAccount = require('../controllers/user/account')
 const userSecurity = require('../controllers/user/security')
 const requireAuth = require('../controllers/localAuth').ensureAuthenticated
@@ -11,8 +12,9 @@ router.get('/', function(req, res, next) {
 })
 
 router.get('/profile', requireAuth, userProfile.read)
-
 router.put('/profile/edit', requireAuth, userProfile.update )
+router.get('/profile/:id', userPolls.findAllPollsByUser)
+
 router.put('/security', requireAuth, userSecurity.updatePassword )
 
 // create a new user upon user registration

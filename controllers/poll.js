@@ -113,15 +113,20 @@ exports.vote = function(req, res, next) {
 }
 
 /**
- * deletePoll
+ * deletePoll the user is logged in and is the onwner of the poll
  * return an updated poll given it's id
  */
 exports.deletePoll = function(req, res, next) {
-  Poll.findByIdAndRemove(req.params.id).exec()
-  .then((poll) => {
-    if (!poll) return res.status(400).send({message: 'Poll Not Found'})
-    return res.send({message: 'Poll has been deleted'})
-  })
+  Promise.coroutine(function* () {
+    const poll = yield Poll.findById(req.params.id).lean().exec()
+    if (poll.createdBy.toString() !== req.user.id.toString()) {
+      console.log('inside if')
+      return res.status(403).send({message: 'You are not authorized to delete this poll'})
+    }
+    const removePoll = yield Poll.findByIdAndRemove(req.params.id).lean().exec()
+    if (!removePoll) return res.status(400).send({message: 'Poll Not Found'})
+    return res.send({poll: removePoll, message: 'Poll has been deleted'})
+  })()
   .catch((err) => {
     console.log(err)
     return errorResponse(req, res, 'standardError')
