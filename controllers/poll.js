@@ -54,6 +54,22 @@ exports.readPoll = function(req, res, next) {
 }
 
 /**
+ * getLatest20Poll
+ * return a poll given it's id
+ */
+exports.getLatest20Poll = function(req, res, next) {
+  Poll.find({}).limit(20).sort({createdAt: 'desc'}).lean()
+  .populate('createdBy', 'firstName lastName').exec()
+  .then((polls) => {
+    return res.send(polls)
+  })
+  .catch((err) => {
+    console.log(err)
+    return errorResponse(req, res, 'standardError')
+  })
+}
+
+/**
  * updatePoll (secure route only logged in user can update via this route)
  * return an updated poll given it's id
  */
