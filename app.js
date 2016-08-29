@@ -16,7 +16,6 @@ const poll = require('./routes/poll')
 
 const app = express()
 const requestIp = require('request-ip')
-
 // Db Setup
 if (process.env.NODE_ENV === 'development') {
   mongoose.connect('mongodb://127.0.0.1:voting/voting')

@@ -100,11 +100,13 @@ exports.authGithub = function(req, res) {
     redirect_uri: req.body.redirect_uri,
     grant_type: 'authorization_code'
   }
+  console.log("params", params)
 
   Promise.coroutine(function* () {
     // Step 1. Exchange authorization code for access token.
     const access_token = yield axios.post(accessTokenUrl, qs.stringify(params)).then((response) => qs.parse(response.data).access_token)
 
+    console.log(access_token, '===========================================')
     // Step 2. Retrieve user's profile information.
     const profile = yield axios.get(userUrl, {headers:{ Authorization: `Bearer ${access_token}`} }).then(({data}) => data)
 
