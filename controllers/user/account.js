@@ -3,7 +3,7 @@ const User = require('../../models/user')
 const generateJwtToken = require('../../utils/generateJwtToken')
 const _ = require('lodash')
 const errorResponse = require('../../utils/errorResponse')
-
+const Poll = require('../../models/poll')
 /**
  * POST /login Create new account with email
  */
@@ -45,9 +45,16 @@ exports.create = function(req, res, next) {
  * DELETE /account
  */
 exports.delete = function(req, res, next) {
-
-  User.remove({ _id: req.user.id }, function(err) {
-    if (err) return errorResponse(req, res, 'standardError')
-    return res.send({ message: 'Your account has been permanently deleted.' })
+  Promise.coroutine(function* () {
+    // delete all the polls by a user.
+    // An alternative is to delete the polls by user at the model level. https://is.gd/NyESF8
+    const deletePollsByUser = yield Poll.find({createdBy: req.user.id}).remove().exec()
+    const deleteUser = yield User.remove({_id: req.user.id}).exec()
+    
+    return res.send({ message: 'Your account and your polls has been permanently deleted.' })
+  })()
+  .catch((err) => {
+    console.log(err)
+    return errorResponse(req, res, 'standardError')
   })
 }
