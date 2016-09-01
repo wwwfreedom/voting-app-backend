@@ -79,7 +79,7 @@ exports.updatePoll = function(req, res, next) {
   }, {new: true})
   .then((poll) => {
     if (!poll) return res.status(400).send({message: 'Poll Not Found'})
-    return res.send({poll, message: 'Your vote was submmited'})
+    return res.send({poll, message: 'Your vote was submitted.'})
   })
   .catch((err) => {
     console.log(err)
@@ -119,7 +119,7 @@ exports.vote = function(req, res, next) {
     if (!updatedPoll) return res.status(400).send({message: 'Poll Not Found'})
     return res.send({
       poll: Object.assign({}, updatedPoll, { hasVoted: true}),
-      message: 'Your vote was submmited'
+      message: 'Your vote was submitted.'
     })
   })()
   .catch((err) => {
